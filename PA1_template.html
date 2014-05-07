@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta http-equiv="x-ua-compatible" content="IE=9" >
 
-<title>Markdown</title>
+<title>read dataset</title>
 
 <style type="text/css">
 body, td {
@@ -142,67 +142,98 @@ hr {
 </head>
 
 <body>
-<h1>Markdown</h1>
+<h2>read dataset</h2>
 
-<p>#download file and unzip
-url&lt;-&ldquo;<a href="https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip">https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip</a>&rdquo;
-download.file(url,destfile=&ldquo;C:./activity.zip&rdquo;)
-unzip(&ldquo;activity.zip&rdquo;,unzip=&ldquo;internal&rdquo;)</p>
+<pre><code class="r,echo=TRUE">
+activedf&lt;-read.csv(&quot;activity.csv&quot;,header=TRUE)
+str(activedf)
+</code></pre>
 
-<p>#read dataset
-activedf&lt;-read.csv(&ldquo;activity.csv&rdquo;,header=TRUE)
-str(activedf)</p>
+<h2>transform to date</h2>
 
-<p>#transform date
-activedf$date&lt;-as.Date(activedf$date)</p>
+<pre><code class="r,echo=TRUE">
+activedf$date&lt;-as.Date(activedf$date)
 
-<p>#calculate mean/median
-plot0&lt;-hist(activedf$steps)
+</code></pre>
+
+<h2>calculate mean/median</h2>
+
+<pre><code class="r,echo=TRUE">hist(activedf$steps)
 mean(activedf$steps,na.rm=TRUE)
-median(activedf$steps,na.rm=TRUE)</p>
+median(activedf$steps,na.rm=TRUE)
 
-<p>##plot average no. of steps across all days
-plot(aggregate(steps~interval,data=activedf,mean),type=&ldquo;l&rdquo;)</p>
+</code></pre>
 
-<p>##find interval with highest no. of steps across all days
-df&lt;-aggregate(steps~interval,data=activedf,mean)
+<h2>plot average no. of steps across all days</h2>
+
+<pre><code class="r,echo=TRUE">
+plot(aggregate(steps~interval,data=activedf,mean),type=&quot;l&quot;)
+
+</code></pre>
+
+<h2>calculate missing values</h2>
+
+<pre><code class="r,echo=TRUE">table(is.na(activedf))
+
+</code></pre>
+
+<h2>find interval with highest no. of steps across all days</h2>
+
+<pre><code class="r,echo=TRUE">df&lt;-aggregate(steps~interval,data=activedf,mean)
 maxvalue&lt;-which.max(df$steps)
-df[maxvalue,]</p>
+df[maxvalue,]
 
-<p>##calculate missing values
-table(is.na(activedf))</p>
+</code></pre>
 
-<p>##calculate and substitue NA values with mean no. of steps per interval
-library(plyr)</p>
+<h2>calculate and substitue NA values with mean no. of steps per interval</h2>
 
-<p>avgdf&lt;-ddply(activedf,.(interval),transform,mean=mean(steps,na.rm=TRUE))
+<pre><code class="r,echo=TRUE">
+
+library(plyr)
+
+avgdf&lt;-ddply(activedf,.(interval),transform,mean=mean(steps,na.rm=TRUE))
 missing&lt;-which(is.na(avgdf$steps))
-avgdf$steps[missing]&lt;-avgdf$mean[missing]</p>
+avgdf$steps[missing]&lt;-avgdf$mean[missing]
 
-<p>##calculate mean and median
-plot1&lt;-hist(avgdf$steps)</p>
 
-<p>mean(avgdf$steps)
-median(avgdf$steps)</p>
 
-<p>##add new column to dataframe and factor by weekday/weekend
-date&lt;-avgdf$date
+</code></pre>
+
+<h2>calculate mean and median</h2>
+
+<pre><code class="r,echo=TRUE">
+hist(avgdf$steps)
+mean(avgdf$steps)
+median(avgdf$steps)
+
+
+</code></pre>
+
+<h2>add new column to dataframe and factor by weekday/weekend</h2>
+
+<pre><code class="r,echo=TRUE">date&lt;-avgdf$date
 date&lt;-weekdays(date)
-weekday&lt;-c(&ldquo;Monday&rdquo;,&ldquo;Tuesday&rdquo;,&ldquo;Wednesday&rdquo;,&ldquo;Thursday&rdquo;,&ldquo;Friday&rdquo;)
-weekend&lt;-c(&ldquo;Saturday&rdquo;,&ldquo;Sunday&rdquo;)
+weekday&lt;-c(&quot;Monday&quot;,&quot;Tuesday&quot;,&quot;Wednesday&quot;,&quot;Thursday&quot;,&quot;Friday&quot;)
+weekend&lt;-c(&quot;Saturday&quot;,&quot;Sunday&quot;)
 weekendindex&lt;-which(date %in% weekend)
 weekdayindex&lt;-which(date %in% weekday)
-date[weekdayindex]&lt;-&ldquo;Weekday&rdquo;
-date[weekendindex]&lt;-&ldquo;Weekend&rdquo;
+date[weekdayindex]&lt;-&quot;Weekday&quot;
+date[weekendindex]&lt;-&quot;Weekend&quot;
 date&lt;-factor(date)
 avgdf&lt;-cbind(avgdf,date)
-names(avgdf)[5]&lt;-&ldquo;day&rdquo;</p>
+names(avgdf)[5]&lt;-&quot;day&quot;
 
-<p>##plot average steps with 5 minute intervals by days 
-library(lattice)
+
+</code></pre>
+
+<h2>plot average steps with 5 minute intervals by days</h2>
+
+<pre><code class="r,echo=TRUE">library(lattice)
 avgdf&lt;-ddply(avgdf,.(interval,day),summarise,steps=mean(steps))
-plot2&lt;-xyplot(steps~interval|day,data=avgdf,type=&ldquo;l&rdquo;,layout=c(1,2),ylab=&ldquo;Nuber of Steps&rdquo;,xlab=&ldquo;Interval&rdquo;)
-plot2</p>
+xyplot(steps~interval|day,data=avgdf,type=&quot;l&quot;,layout=c(1,2),ylab=&quot;Nuber of Steps&quot;,xlab=&quot;Interval&quot;)
+
+
+</code></pre>
 
 </body>
 
