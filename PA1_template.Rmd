@@ -1,7 +1,6 @@
 ## read dataset
 
 ```{r,echo=TRUE}
-
 activedf<-read.csv("activity.csv",header=TRUE)
 str(activedf)
 ```
@@ -14,13 +13,23 @@ activedf$date<-as.Date(activedf$date)
 
 ```
 
-## calculate mean/median
 ```{r,echo=TRUE}
 hist(activedf$steps)
+
+```
+
+
+## calculate mean/median
+
+```{r}
+
 mean(activedf$steps,na.rm=TRUE)
 median(activedf$steps,na.rm=TRUE)
 
 ```
+
+
+
 
 ## plot average no. of steps across all days
 
@@ -65,17 +74,25 @@ avgdf$steps[missing]<-avgdf$mean[missing]
 
 ```
 
-## calculate mean and median
 
 
 ```{r,echo=TRUE}
-
 hist(avgdf$steps)
+```
+
+## calculate mean and median
+
+
+```{r}
+
 mean(avgdf$steps)
 median(avgdf$steps)
 
 
 ```
+
+
+
 
 ## add new column to dataframe and factor by weekday/weekend
 
@@ -100,7 +117,14 @@ names(avgdf)[5]<-"day"
 ```{r,echo=TRUE}
 library(lattice)
 avgdf<-ddply(avgdf,.(interval,day),summarise,steps=mean(steps))
+
+```
+
+
+```{r}
+
 xyplot(steps~interval|day,data=avgdf,type="l",layout=c(1,2),ylab="Nuber of Steps",xlab="Interval")
+
 
 
 ```
