@@ -1,193 +1,62 @@
-## read dataset
+Markdown
+========================================================
 
+#download file and unzip
+url<-"https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
+download.file(url,destfile="C:./activity.zip")
+unzip("activity.zip",unzip="internal")
 
-```r
-
-activedf <- read.csv("activity.csv", header = TRUE)
+#read dataset
+activedf<-read.csv("activity.csv",header=TRUE)
 str(activedf)
-```
 
-```
-## 'data.frame':	17568 obs. of  3 variables:
-##  $ steps   : int  NA NA NA NA NA NA NA NA NA NA ...
-##  $ date    : Factor w/ 61 levels "2012-10-01","2012-10-02",..: 1 1 1 1 1 1 1 1 1 1 ...
-##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
-```
+#transform date
+activedf$date<-as.Date(activedf$date)
 
+#calculate mean/median
+plot0<-hist(activedf$steps)
+mean(activedf$steps,na.rm=TRUE)
+median(activedf$steps,na.rm=TRUE)
 
-## transform to date
+##plot average no. of steps across all days
+plot(aggregate(steps~interval,data=activedf,mean),type="l")
 
+##find interval with highest no. of steps across all days
+df<-aggregate(steps~interval,data=activedf,mean)
+maxvalue<-which.max(df$steps)
+df[maxvalue,]
 
-```r
-
-activedf$date <- as.Date(activedf$date)
-```
-
-
-## calculate mean/median
-
-```r
-hist(activedf$steps)
-```
-
-![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3.png) 
-
-```r
-mean(activedf$steps, na.rm = TRUE)
-```
-
-```
-## [1] 37.38
-```
-
-```r
-median(activedf$steps, na.rm = TRUE)
-```
-
-```
-## [1] 0
-```
-
-
-## plot average no. of steps across all days
-
-
-```r
-
-plot(aggregate(steps ~ interval, data = activedf, mean), type = "l")
-```
-
-![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
-
-
-
-## calculate missing values
-
-
-```r
+##calculate missing values
 table(is.na(activedf))
-```
 
-```
-## 
-## FALSE  TRUE 
-## 50400  2304
-```
-
-
-
-## find interval with highest no. of steps across all days
-
-
-
-```r
-df <- aggregate(steps ~ interval, data = activedf, mean)
-maxvalue <- which.max(df$steps)
-df[maxvalue, ]
-```
-
-```
-##     interval steps
-## 104      835 206.2
-```
-
-
-## calculate and substitue NA values with mean no. of steps per interval
-
-
-
-```r
-
-
+##calculate and substitue NA values with mean no. of steps per interval
 library(plyr)
-```
 
-```
-## Warning: package 'plyr' was built under R version 3.0.3
-```
+avgdf<-ddply(activedf,.(interval),transform,mean=mean(steps,na.rm=TRUE))
+missing<-which(is.na(avgdf$steps))
+avgdf$steps[missing]<-avgdf$mean[missing]
 
-```r
+##calculate mean and median
+plot1<-hist(avgdf$steps)
 
-avgdf <- ddply(activedf, .(interval), transform, mean = mean(steps, na.rm = TRUE))
-missing <- which(is.na(avgdf$steps))
-avgdf$steps[missing] <- avgdf$mean[missing]
-
-```
-
-
-## calculate mean and median
-
-
-
-```r
-
-hist(avgdf$steps)
-```
-
-![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8.png) 
-
-```r
 mean(avgdf$steps)
-```
-
-```
-## [1] 37.38
-```
-
-```r
 median(avgdf$steps)
-```
 
-```
-## [1] 0
-```
+##add new column to dataframe and factor by weekday/weekend
+date<-avgdf$date
+date<-weekdays(date)
+weekday<-c("Monday","Tuesday","Wednesday","Thursday","Friday")
+weekend<-c("Saturday","Sunday")
+weekendindex<-which(date %in% weekend)
+weekdayindex<-which(date %in% weekday)
+date[weekdayindex]<-"Weekday"
+date[weekendindex]<-"Weekend"
+date<-factor(date)
+avgdf<-cbind(avgdf,date)
+names(avgdf)[5]<-"day"
 
-```r
-
-```
-
-
-## add new column to dataframe and factor by weekday/weekend
-
-
-```r
-date <- avgdf$date
-date <- weekdays(date)
-weekday <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
-weekend <- c("Saturday", "Sunday")
-weekendindex <- which(date %in% weekend)
-weekdayindex <- which(date %in% weekday)
-date[weekdayindex] <- "Weekday"
-date[weekendindex] <- "Weekend"
-date <- factor(date)
-avgdf <- cbind(avgdf, date)
-names(avgdf)[5] <- "day"
-
-```
-
-
-## plot average steps with 5 minute intervals by days 
-
-
-```r
+##plot average steps with 5 minute intervals by days 
 library(lattice)
-```
-
-```
-## Warning: package 'lattice' was built under R version 3.0.3
-```
-
-```r
-avgdf <- ddply(avgdf, .(interval, day), summarise, steps = mean(steps))
-xyplot(steps ~ interval | day, data = avgdf, type = "l", layout = c(1, 2), ylab = "Nuber of Steps", 
-    xlab = "Interval")
-```
-
-![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10.png) 
-
-```r
-
-```
-
-
-
+avgdf<-ddply(avgdf,.(interval,day),summarise,steps=mean(steps))
+plot2<-xyplot(steps~interval|day,data=avgdf,type="l",layout=c(1,2),ylab="Nuber of Steps",xlab="Interval")
+plot2

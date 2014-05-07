@@ -14,7 +14,7 @@ str(activedf)
 activedf$date<-as.Date(activedf$date)
 
 ##calculate mean/median
-hist(activedf$steps)
+plot0<-hist(activedf$steps)
 mean(activedf$steps,na.rm=TRUE)
 median(activedf$steps,na.rm=TRUE)
 
@@ -37,7 +37,8 @@ missing<-which(is.na(avgdf$steps))
 avgdf$steps[missing]<-avgdf$mean[missing]
 
 ##calculate mean and median
-hist(avgdf$steps)
+plot1<-hist(avgdf$steps)
+
 mean(avgdf$steps)
 median(avgdf$steps)
 
@@ -57,4 +58,5 @@ names(avgdf)[5]<-"day"
 ##plot average steps with 5 minute intervals by days 
 library(lattice)
 avgdf<-ddply(avgdf,.(interval,day),summarise,steps=mean(steps))
-xyplot(steps~interval|day,data=avgdf,type="l",layout=c(1,2),ylab="Nuber of Steps",xlab="Interval")
+plot2<-xyplot(steps~interval|day,data=avgdf,type="l",layout=c(1,2),ylab="Nuber of Steps",xlab="Interval")
+plot2
