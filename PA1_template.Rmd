@@ -1,25 +1,28 @@
-## read dataset
+ 
+## Project 1
 
-```{r,echo=TRUE}
+read dataset
+
+```{r,}
 activedf<-read.csv("activity.csv",header=TRUE)
 str(activedf)
 ```
 
-## transform to date
+transform to date
 
-```{r,echo=TRUE}
+```{r,}
 
 activedf$date<-as.Date(activedf$date)
 
 ```
 
-```{r,echo=TRUE}
+```{r,}
 hist(activedf$steps)
 
 ```
 
 
-## calculate mean/median
+calculate mean/median
 
 ```{r}
 
@@ -31,37 +34,37 @@ median(activedf$steps,na.rm=TRUE)
 
 
 
-## plot average no. of steps across all days
+plot average no. of steps across all days
 
-```{r,echo=TRUE}
+```{r,}
 
 plot(aggregate(steps~interval,data=activedf,mean),type="l")
 
 ```
 
 
-## calculate missing values
+calculate missing values
 
-```{r,echo=TRUE}
+```{r,}
 table(is.na(activedf))
 
 ```
 
 
-## find interval with highest no. of steps across all days
+find interval with highest no. of steps across all days
 
 
-```{r,echo=TRUE}
+```{r,}
 df<-aggregate(steps~interval,data=activedf,mean)
 maxvalue<-which.max(df$steps)
 df[maxvalue,]
 
 ```
 
-## calculate and substitue NA values with mean no. of steps per interval
+calculate and substitue NA values with mean no. of steps per interval
 
 
-```{r,echo=TRUE}
+```{r,}
 
 
 library(plyr)
@@ -76,11 +79,11 @@ avgdf$steps[missing]<-avgdf$mean[missing]
 
 
 
-```{r,echo=TRUE}
+```{r,}
 hist(avgdf$steps)
 ```
 
-## calculate mean and median
+calculate mean and median
 
 
 ```{r}
@@ -94,9 +97,9 @@ median(avgdf$steps)
 
 
 
-## add new column to dataframe and factor by weekday/weekend
+add new column to dataframe and factor by weekday/weekend
 
-```{r,echo=TRUE}
+```{r,}
 date<-avgdf$date
 date<-weekdays(date)
 weekday<-c("Monday","Tuesday","Wednesday","Thursday","Friday")
@@ -112,9 +115,9 @@ names(avgdf)[5]<-"day"
 
 ```
 
-## plot average steps with 5 minute intervals by days 
+plot average steps with 5 minute intervals by days 
 
-```{r,echo=TRUE}
+```{r,}
 library(lattice)
 avgdf<-ddply(avgdf,.(interval,day),summarise,steps=mean(steps))
 
@@ -124,8 +127,6 @@ avgdf<-ddply(avgdf,.(interval,day),summarise,steps=mean(steps))
 ```{r}
 
 xyplot(steps~interval|day,data=avgdf,type="l",layout=c(1,2),ylab="Nuber of Steps",xlab="Interval")
-
-
 
 ```
 
